@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UILevelSelect : MonoBehaviour
 {
     [SerializeField] LevelController levelController;
     [SerializeField] UILevel level;
-    [SerializeField] GameObject levelPopUp;
+    [SerializeField] LevelPopup levelPopUp;
     Transform LevelSelectPanel;
-    List<UILevel> levelList;
+    List<UILevel> levelList = new List<UILevel>();
     int currentPage;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,7 +28,7 @@ public class UILevelSelect : MonoBehaviour
     {
         RemoveItemsFromPage();
         currentPage = lvl;
-        int pageSize = 12;
+        int pageSize = 8;
 
         List<UILevel> pageList = levelList.Skip(lvl*pageSize).Take(pageSize).ToList();
 
@@ -36,11 +38,11 @@ public class UILevelSelect : MonoBehaviour
             UILevel instance = Instantiate(pageList[i]);
             instance.SetStars(level.Stars);
             instance.transform.SetParent(LevelSelectPanel);
+            instance.GetComponent<Button>().onClick.AddListener(() => SelectLevel(level));
             if (!level.Locked)
             {
                 instance.lockImage.SetActive(false);
                 instance.levelIDText.text = level.ID.ToString();
-
             }
             else
             {
@@ -72,7 +74,8 @@ public class UILevelSelect : MonoBehaviour
     {
         if (level.Locked)
         {
-            levelPopUp.SetActive(true);
+            levelPopUp.gameObject.SetActive(true);
+            levelPopUp.SetText("<b>Level "+ level.ID+ " is currently locked </b> \nComplete level" +(level.ID-1)+" to unlock it!");
             Debug.Log("Level Locked");
         }
         else
@@ -80,11 +83,5 @@ public class UILevelSelect : MonoBehaviour
             Debug.Log("Go to level: "+level.ID);
             levelController.StartLevel(level.ID.ToString());
         }
-        
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
